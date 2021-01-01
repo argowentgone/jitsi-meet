@@ -14,7 +14,7 @@ import {
     WelcomePage,
     isWelcomePageAppEnabled,
     isWelcomePageUserEnabled
-} from '../welcome';
+} from '../omdo-assets/welcome';
 
 /**
  * Object describing application route.

@@ -164,14 +164,16 @@ class Watermarks extends Component<Props, State> {
 
         if (_showJitsiWatermark) {
             const style = {
-                backgroundImage: `url(${_logoUrl})`,
+                // backgroundImage: `url(${_logoUrl})`,
                 maxWidth: 140,
-                maxHeight: 70
+                maxHeight: 70,
+                width: 'auto',
+                fontSize: '24px'
             };
 
             reactElement = (<div
                 className = 'watermark leftwatermark'
-                style = { style } />);
+                style = { style }>OmniDO</div>);
 
             if (_logoLink) {
                 reactElement = (

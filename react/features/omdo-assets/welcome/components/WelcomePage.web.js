@@ -2,17 +2,17 @@
 
 import React from 'react';
 
-import { isMobileBrowser } from '../../base/environment/utils';
-import { translate, translateToHTML } from '../../base/i18n';
-import { Icon, IconWarning } from '../../base/icons';
-import { Watermarks } from '../../base/react';
-import { connect } from '../../base/redux';
-import { CalendarList } from '../../calendar-sync';
-import { RecentList } from '../../recent-list';
-import { SettingsButton, SETTINGS_TABS } from '../../settings';
-
+import { isMobileBrowser } from '../../../base/environment/utils';
+import { translate, translateToHTML } from '../../../base/i18n';
+import { Icon, IconWarning } from '../../../base/icons';
+import { Watermarks } from '../../../base/react';
+import { connect } from '../../../base/redux';
+import { CalendarList } from '../../../calendar-sync';
+import { RecentList } from '../../../recent-list';
+import { SettingsButton, SETTINGS_TABS } from '../../../settings';
 import { AbstractWelcomePage, _mapStateToProps } from './AbstractWelcomePage';
 import Tabs from './Tabs';
+import ModalLogin from './ModalLogin';
 
 /**
  * The pattern used to validate room name.
@@ -46,6 +46,11 @@ class WelcomePage extends AbstractWelcomePage {
 
         this.state = {
             ...this.state,
+
+            isModalOpen: false,
+
+            email: '',
+            password: '',
 
             generateRoomnames:
                 interfaceConfig.GENERATE_ROOMNAMES_ON_WELCOME_PAGE,
@@ -164,6 +169,10 @@ class WelcomePage extends AbstractWelcomePage {
         document.body.classList.remove('welcome-page');
     }
 
+    _submitLoginOmdo = () => {
+        console.log(this.state.email)
+    }
+
     /**
      * Implements React's {@link Component#render()}.
      *
@@ -187,82 +196,53 @@ class WelcomePage extends AbstractWelcomePage {
                 </div>
 
                 <div className = 'header'>
-                    <div className = 'welcome-page-settings'>
-                        <SettingsButton
-                            defaultTab = { SETTINGS_TABS.CALENDAR } />
-                        { showAdditionalToolbarContent
-                            ? <div
-                                className = 'settings-toolbar-content'
-                                ref = { this._setAdditionalToolbarContentRef } />
-                            : null
-                        }
-                    </div>
                     <div className = 'header-image' />
-                    <div className = 'header-container bnbnbnb'>
-                        <h1 className = 'header-text-title'>
-                            { t('welcomepage.headerTitle') }
-                        </h1>
-                        <span className = 'header-text-subtitle'>
-                            { t('welcomepage.headerSubtitle')}
-                        </span>
-                        <div id = 'enter_room'>
-                            <div className = 'enter-room-input-container'>
-                                <form onSubmit = { this._onFormSubmit }>
-                                    <input
-                                        aria-disabled = 'false'
-                                        aria-label = 'Meeting name input'
-                                        autoFocus = { true }
-                                        className = 'enter-room-input'
-                                        id = 'enter_room_field'
-                                        onChange = { this._onRoomChange }
-                                        pattern = { ROOM_NAME_VALIDATE_PATTERN_STR }
-                                        placeholder = { this.state.roomPlaceholder }
-                                        ref = { this._setRoomInputRef }
-                                        title = { t('welcomepage.roomNameAllowedChars') }
-                                        type = 'text'
-                                        value = { this.state.room } />
-                                    <div
-                                        className = { _moderatedRoomServiceUrl
-                                            ? 'warning-with-link'
-                                            : 'warning-without-link' }>
-                                        { this._renderInsecureRoomNameWarning() }
-                                    </div>
-                                </form>
-                            </div>
-                            <button
-                                aria-disabled = 'false'
-                                aria-label = 'Start meeting'
-                                className = 'welcome-page-button'
-                                id = 'enter_room_button'
-                                onClick = { this._onFormSubmit }
-                                tabIndex = '0'
-                                type = 'button'>
-                                { t('welcomepage.startMeeting') }
-                            </button>
-                        </div>
-
-                        { _moderatedRoomServiceUrl && (
-                            <div id = 'moderated-meetings'>
-                                <p>
-                                    {
-                                        translateToHTML(
-                                        t, 'welcomepage.moderatedMessage', { url: _moderatedRoomServiceUrl })
-                                    }
-                                </p>
-                            </div>)}
-                    </div>
                 </div>
 
                 <div className = 'welcome-cards-container'>
                     <div className = 'welcome-card-row'>
                         <div className = 'welcome-tabs welcome-card welcome-card--blue'>
-                            { this._renderTabs() }
+                            <form id='form-reg'>
+                                <div className="container">
+                                    <h1>Register</h1>
+                                    <hr />
+
+                                    <label htmlFor="email"><b>Email</b></label>
+                                    <input type="text" placeholder="Enter Email" name="email" id="email" required />
+
+                                    <label htmlFor="psw"><b>Password</b></label>
+                                    <input type="password" placeholder="Enter Password" name="psw" id="psw" required />
+
+                                    <label htmlFor="psw-repeat"><b>Repeat Password</b></label>
+                                    <input type="password" placeholder="Repeat Password" name="psw-repeat" id="psw-repeat" required />
+                                    <hr />
+                                    <p>By creating an account you agree to our <a href="#">Terms & Privacy</a>.</p>
+
+                                    <button type="submit" className="registerbtn">Register</button>
+                                </div>
+                            </form>
+                            <div className="container signin">
+                                <p>Already have an account? <a href='javascript:void(0)' onClick={() => this.setState({ isModalOpen: !this.state.isModalOpen })}>Sign in</a>.</p>
+                                <ModalLogin isOpen={ this.state.isModalOpen }>
+                                    <form id='form-reg'>
+                                        <div className="container">
+                                            <h1>Login</h1>
+                                            <hr />
+
+                                            <label htmlFor="email"><b>Email</b></label>
+                                            <input type="text" value={this.state.email} placeholder="Enter Email" name="email" id="email" required onChange={e => this.setState({ email: e.target.value })} />
+
+                                            <label htmlFor="password"><b>Password</b></label>
+                                            <input type="password" value={this.state.password} placeholder="Enter Password" name="password" id="password" required onChange={e => this.setState({ password: e.target.value })} />
+                                            
+                                            <hr />
+                                            <button onClick={() => this.setState({ isModalOpen: !this.state.isModalOpen })}>close</button>
+                                            <button disabled={!this.state.email} onClick={ this._submitLoginOmdo }>Login</button>
+                                        </div>
+                                    </form>
+                                </ModalLogin>
+                            </div>
                         </div>
-                        { showAdditionalCard
-                            ? <div
-                                className = 'welcome-card welcome-card--dark'
-                                ref = { this._setAdditionalCardRef } />
-                            : null }
                     </div>
 
                     { showAdditionalContent
@@ -351,7 +331,9 @@ class WelcomePage extends AbstractWelcomePage {
             <div className = 'welcome-footer-centered'>
                 <div className = 'welcome-footer-padded'>
                     <div className = 'welcome-footer-row-block welcome-footer--row-1'>
-                        <div className = 'welcome-footer-row-1-text'>{t('welcomepage.jitsiOnMobile')}</div>
+                        <div className = 'welcome-footer-row-1-text'>
+                        OmniDO on mobile – download our apps and start a meeting from anywhere
+                        </div>
                         <a
                             className = 'welcome-badge'
                             href = { MOBILE_DOWNLOAD_LINK_IOS }>
@@ -362,11 +344,15 @@ class WelcomePage extends AbstractWelcomePage {
                             href = { MOBILE_DOWNLOAD_LINK_ANDROID }>
                             <img src = './images/google-play-badge.png' />
                         </a>
-                        <a
-                            className = 'welcome-badge'
-                            href = { MOBILE_DOWNLOAD_LINK_F_DROID }>
-                            <img src = './images/f-droid-badge.png' />
-                        </a>
+                        <div>
+                            Powered by 
+                            <a
+                                className = 'welcome-badge'
+                                style={{ marginLeft: '0.25rem' }}
+                                href = { 'https://jitsi.org/' }>
+                                Jitsi.org
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
